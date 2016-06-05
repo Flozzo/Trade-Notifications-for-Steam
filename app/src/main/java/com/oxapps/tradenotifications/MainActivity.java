@@ -5,15 +5,13 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements SetDelayDialogFragment.OnDelaySetListener {
@@ -21,7 +19,6 @@ public class MainActivity extends AppCompatActivity implements SetDelayDialogFra
     private static final String API_KEY_URL = "https://steamcommunity.com/dev/apikey";
     public static final String PREFS_KEY_API_KEY = "api_key";
     public static final String PREFS_KEY_DELAY = "delay";
-    private static final String TAG = "MainActivity";
     private EditText apiKeyView;
     private SharedPreferences prefs;
     private TextView delayView;
@@ -52,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements SetDelayDialogFra
         String apiKey = apiKeyView.getText().toString().trim();
         if(apiKey.length() == 32) {
             //Valid API Key, supposedly
-
-            Log.d(TAG, "onPause: Scheduling");
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(PREFS_KEY_API_KEY, apiKey);
             editor.apply();
