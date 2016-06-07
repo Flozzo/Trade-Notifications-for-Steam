@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements SetDelayDialogFragment.OnDelaySetListener {
+public class MainActivity extends AppCompatActivity implements DelayDialogFragment.OnDelaySetListener {
 
     private static final String API_KEY_URL = "https://steamcommunity.com/dev/apikey";
     public static final String PREFS_KEY_API_KEY = "api_key";
@@ -89,9 +89,9 @@ public class MainActivity extends AppCompatActivity implements SetDelayDialogFra
     }
 
     public void showIntervalDialog(View v) {
-        SetDelayDialogFragment sddf = new SetDelayDialogFragment();
-        sddf.setOnDelaySetListener(MainActivity.this);
-        sddf.show(getSupportFragmentManager(), "tag");
+        DelayDialogFragment ddf = new DelayDialogFragment();
+        ddf.setOnDelaySetListener(MainActivity.this);
+        ddf.show(getSupportFragmentManager(), "tag");
     }
 
     @Override public void onDelaySet(String text, long delay) {

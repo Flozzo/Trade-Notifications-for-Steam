@@ -5,14 +5,13 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
 /**
  * Created by flynn on 5/06/16.
  */
-public class SetDelayDialogFragment extends DialogFragment {
+public class DelayDialogFragment extends DialogFragment {
     OnDelaySetListener delaySetListener;
 
     @Override
