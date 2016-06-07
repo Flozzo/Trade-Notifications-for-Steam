@@ -62,13 +62,13 @@ public class BackgroundIntentService extends IntentService {
             if(json.equals("")) {
                 return;
             }
-            JSONObject everything = new JSONObject(json);
-            JSONArray tradeOffers = everything.getJSONObject("response").getJSONArray("trade_offers_received");
-            totalOfferCount = tradeOffers.length();
-            if(totalOfferCount == 0 ) {
+            JSONObject response = new JSONObject(json).getJSONObject("response");
+            if(!response.has("trade_offers_received") ) {
                 removeNotification();
                 return;
             }
+            JSONArray tradeOffers = response.getJSONArray("trade_offers_received");
+            totalOfferCount = tradeOffers.length();
             for (int i = 0; i < tradeOffers.length(); i++) {
                 JSONObject tradeOffer = tradeOffers.getJSONObject(i);
                 long timeCreated = tradeOffer.getLong(TIME_CREATED_KEY);
