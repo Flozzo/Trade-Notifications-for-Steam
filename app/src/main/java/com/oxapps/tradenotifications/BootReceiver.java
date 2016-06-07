@@ -26,8 +26,6 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
 public class BootReceiver extends BroadcastReceiver {
-    public BootReceiver() {
-    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
