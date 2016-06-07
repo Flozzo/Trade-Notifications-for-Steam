@@ -135,7 +135,7 @@ public class BackgroundIntentService extends IntentService {
         PendingIntent pendingContentIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 6, clickIntent, 0);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_notif_token)
+                .setSmallIcon(R.drawable.ic_notif_trade)
                 .setContentTitle(titleText)
                 .setContentText(contentText)
                 .setAutoCancel(true)
@@ -190,7 +190,7 @@ public class BackgroundIntentService extends IntentService {
         PendingIntent pendingContentIntent = PendingIntent.getActivity(this.getApplicationContext(), 6, clickIntent, 0);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_notif_token)
+                .setSmallIcon(R.drawable.ic_notif_error)
                 .setContentTitle("Error fetching trade offers")
                 .setContentText("Steam API Key incorrect")
                 .setAutoCancel(true)
