@@ -30,14 +30,13 @@ import okhttp3.Response;
  * helper methods.
  */
 public class BackgroundIntentService extends IntentService {
-    private static final String LAST_REQUEST_KEY = "lastRequest";
     public static final String LAST_DELETE_KEY = "lastDelete";
     private static final String TIME_CREATED_KEY = "time_created";
-    private static final String DESCRIPTION_KEY = "message";
     private static final String OFFER_STATE_KEY = "trade_offer_state";
     public static final String NOTIFICATION_CLICKED = "clicked";
 
-    private String ORIGINAL_URL = "https://api.steampowered.com/IEconService/GetTradeOffers/v1/?key=APIKEYHERE&format=json&get_sent_offers=0&get_received_offers=1&get_descriptions=0&active_only=1&historical_only=0";
+    private String ORIGINAL_URL = "https://api.steampowered.com/IEconService/GetTradeOffers/v1/?key=";
+    private String URL_OPTIONS = "&format=json&get_sent_offers=0&get_received_offers=1&get_descriptions=0&active_only=1&historical_only=0";
     OkHttpClient client = new OkHttpClient();
 
 
@@ -53,9 +52,10 @@ public class BackgroundIntentService extends IntentService {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         long lastDeleteTime = prefs.getLong(LAST_DELETE_KEY, 0L);
 
-        String url = ORIGINAL_URL.replace("APIKEYHERE", apiKey);
+        String url = ORIGINAL_URL + apiKey + URL_OPTIONS;
         List<String> descriptions = new ArrayList<>();
         int newOfferCount = 0;
+        int totalOfferCount = 0;
 
         try {
             String json = getTradeOffers(url);
@@ -64,7 +64,8 @@ public class BackgroundIntentService extends IntentService {
             }
             JSONObject everything = new JSONObject(json);
             JSONArray tradeOffers = everything.getJSONObject("response").getJSONArray("trade_offers_received");
-            if(tradeOffers.length() == 0 ) {
+            totalOfferCount = tradeOffers.length();
+            if(totalOfferCount == 0 ) {
                 removeNotification();
                 return;
             }
@@ -89,7 +90,7 @@ public class BackgroundIntentService extends IntentService {
         }
 
         if(newOfferCount > 0) {
-            showNewTradeNotification(newOfferCount);
+            showNewTradeNotification(totalOfferCount,newOfferCount);
         }
     }
 
@@ -101,10 +102,9 @@ public class BackgroundIntentService extends IntentService {
     }
 
 
-    private void showNewTradeNotification(int newOfferCount) {
-        String contentText = "You have " + String.valueOf(newOfferCount) + " new trade offer";
-        String append = (newOfferCount == 1) ? "" : "s";
-        contentText = contentText.concat(append);
+    private void showNewTradeNotification(int totalOfferCount, int newOfferCount) {
+        String titleText = String.valueOf(newOfferCount) + " new trade offer" + ((newOfferCount == 1) ? "" : "s");
+        String contentText = "You now have " + String.valueOf(totalOfferCount) + " active trade offer" + ((totalOfferCount == 1) ? "" : "s");
 
         Intent deleteIntent = new Intent(this, NotificationDeleteReceiver.class);
         PendingIntent pendingDeleteIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 5, deleteIntent, 0);
@@ -115,7 +115,7 @@ public class BackgroundIntentService extends IntentService {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_notif_token)
-                .setContentTitle("New Trade Offers")
+                .setContentTitle(titleText)
                 .setContentText(contentText)
                 .setAutoCancel(true)
                 .setVibrate(new long[]{300, 300, 300, 300, 300})
