@@ -7,6 +7,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
@@ -47,6 +49,10 @@ public class BackgroundIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if(!isInternetAvailable()) {
+            stopSelf();
+            return;
+        }
         String apiKey = intent.getStringExtra(MainActivity.PREFS_KEY_API_KEY);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         long lastDeleteTime = prefs.getLong(LAST_DELETE_KEY, 0);
@@ -149,6 +155,15 @@ public class BackgroundIntentService extends IntentService {
             }
             return "";
         }
+    }
+
+    private boolean isInternetAvailable() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
     }
 
     private void handleBadApiKeyError() {
