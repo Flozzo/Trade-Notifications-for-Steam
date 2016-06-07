@@ -15,8 +15,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -31,6 +29,7 @@ import okhttp3.Response;
  */
 public class BackgroundIntentService extends IntentService {
     public static final String LAST_DELETE_KEY = "lastDelete";
+    public static final String LAST_CHECK_KEY = "lastChecked";
     private static final String TIME_CREATED_KEY = "time_created";
     private static final String OFFER_STATE_KEY = "trade_offer_state";
     public static final String NOTIFICATION_CLICKED = "clicked";
@@ -50,11 +49,17 @@ public class BackgroundIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         String apiKey = intent.getStringExtra(MainActivity.PREFS_KEY_API_KEY);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        long lastDeleteTime = prefs.getLong(LAST_DELETE_KEY, 0L);
+        long lastDeleteTime = prefs.getLong(LAST_DELETE_KEY, 0);
+        long lastCheckTime = prefs.getLong(LAST_CHECK_KEY, 0);
+        long currentTime = System.currentTimeMillis() / 1000;
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong(LAST_CHECK_KEY, currentTime);
+        editor.apply();
 
         String url = ORIGINAL_URL + apiKey + URL_OPTIONS;
-        List<String> descriptions = new ArrayList<>();
         int newOfferCount = 0;
+        int newSinceLastCheckCount = 0;
         int totalOfferCount = 0;
 
         try {
@@ -69,17 +74,18 @@ public class BackgroundIntentService extends IntentService {
             }
             JSONArray tradeOffers = response.getJSONArray("trade_offers_received");
             totalOfferCount = tradeOffers.length();
-            for (int i = 0; i < tradeOffers.length(); i++) {
+            for (int i = 0; i < totalOfferCount; i++) {
                 JSONObject tradeOffer = tradeOffers.getJSONObject(i);
                 long timeCreated = tradeOffer.getLong(TIME_CREATED_KEY);
                 int state = tradeOffer.getInt(OFFER_STATE_KEY);
                 if(timeCreated > lastDeleteTime) {
-                    if(state != 2)  {
+                    if(state == 2) {
                         //state 2 is active, any other state is useless to us for initial purposes.
-                        continue;
+                        newOfferCount++;
+                        if (timeCreated > lastCheckTime) {
+                            newSinceLastCheckCount++;
+                        }
                     }
-                    descriptions.add(tradeOffer.optString("message"));
-                    newOfferCount++;
                 } else {
                     //They are in chronological order so if the first was too early the rest will be too.
                     break;
@@ -89,8 +95,8 @@ public class BackgroundIntentService extends IntentService {
             exception.printStackTrace();
         }
 
-        if(newOfferCount > 0) {
-            showNewTradeNotification(totalOfferCount,newOfferCount);
+        if(newSinceLastCheckCount > 0) {
+            showNewTradeNotification(totalOfferCount, newOfferCount);
         }
     }
 
