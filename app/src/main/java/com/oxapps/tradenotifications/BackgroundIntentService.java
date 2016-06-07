@@ -64,6 +64,10 @@ public class BackgroundIntentService extends IntentService {
             }
             JSONObject everything = new JSONObject(json);
             JSONArray tradeOffers = everything.getJSONObject("response").getJSONArray("trade_offers_received");
+            if(tradeOffers.length() == 0 ) {
+                removeNotification();
+                return;
+            }
             for (int i = 0; i < tradeOffers.length(); i++) {
                 JSONObject tradeOffer = tradeOffers.getJSONObject(i);
                 long timeCreated = tradeOffer.getLong(TIME_CREATED_KEY);
@@ -87,6 +91,13 @@ public class BackgroundIntentService extends IntentService {
         if(newOfferCount > 0) {
             showNewTradeNotification(newOfferCount);
         }
+    }
+
+    private void removeNotification() {
+        //No more trade offers so we don't want to be lying to the user
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
     }
 
 
