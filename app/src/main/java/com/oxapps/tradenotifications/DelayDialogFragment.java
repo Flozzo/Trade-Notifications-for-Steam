@@ -3,6 +3,7 @@ package com.oxapps.tradenotifications;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
@@ -17,8 +18,9 @@ public class DelayDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        final String[] delays = {"Disabled", "5 minutes", "10 minutes", "15 minutes", "30 minutes", "1 hour", "2 hours", "4 hours"};
-        final int[] delayMinutes = {0, 5, 10, 15, 30, 60, 120, 240};
+        Resources resources = getResources();
+        final String[] delays = resources.getStringArray(R.array.delay_names);
+        final int[] delayMinutes = resources.getIntArray(R.array.delay_times);
         builder.setTitle("Checking Interval")
 
                 .setItems(delays, new DialogInterface.OnClickListener() {

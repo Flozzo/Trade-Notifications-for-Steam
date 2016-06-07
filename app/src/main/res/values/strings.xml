@@ -1,7 +1,27 @@
 <resources>
     <string name="app_name">Trade Notifications</string>
+    <string name="api_key_header">Steam Web API Key</string>
+    <string name="api_key_body">The API Key is used to fetch your trade offers. Click the Get API Key button to find it. You can use any URL for the domain field.\nAfter receiving an API Key, copy it and enter it in the text field below.</string>
+    <string name="api_key_hint">API Key (required)</string>
+    <string name="api_key_get">Get API Key</string>
+    <string name="api_key_edit">Edit API Key</string>
+
+    <string name="delay_header">Checking interval</string>
+    <string name="delay_button_title">Checking interval</string>
+    <string name="delay_button_text">10 minutes</string>
 
     <string name="donate_header">Support Development</string>
     <string name="donate_title">Donate Steam items</string>
     <string name="donate_body">Click here to open author\'s Steam Trade URL</string>
+
+    <string name="disabled">Disabled</string>
+    <string name="delay_5">5 minutes</string>
+    <string name="delay_10">10 minutes</string>
+    <string name="delay_15">15 minutes</string>
+    <string name="delay_30">30 minutes</string>
+    <string name="delay_60">1 hour</string>
+    <string name="delay_120">2 hours</string>
+    <string name="delay_240">4 hours</string>
+
+
 </resources>

@@ -40,14 +40,14 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
         apiKeyView = (EditText) findViewById(R.id.et_api_key);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String apiKey = prefs.getString(PREFS_KEY_API_KEY, "");
+        apiKeyButton = (Button) findViewById(R.id.button_get_api_key);
         if(!apiKey.equals("") && apiKey.length() == 32) {
             //Prevent accidental editing of API Key
             apiKeyView.setText(apiKey);
             apiKeyLocked = true;
             apiKeyView.setFocusable(false);
             apiKeyView.setEnabled(false);
-            apiKeyButton = (Button) findViewById(R.id.button_get_api_key);
-            apiKeyButton.setText("Edit API Key");
+            apiKeyButton.setText(R.string.api_key_edit);
         }
         delayView = (TextView) findViewById(R.id.tv_delay);
         delay = prefs.getLong(PREFS_KEY_DELAY, 900000);
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
     public void getApiKey(View v) {
         if(apiKeyLocked) {
             apiKeyView.setFocusableInTouchMode(true);
-            apiKeyButton.setText("Get API Key");
+            apiKeyButton.setText(R.string.api_key_get);
             apiKeyLocked = false;
             apiKeyView.setEnabled(true);
         } else {

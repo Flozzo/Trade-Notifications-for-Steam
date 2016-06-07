@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Steam Web API Key"
+            android:text="@string/api_key_header"
             android:layout_marginTop="8dp"
             style="@style/PrefsHeaderStyle"/>
 
@@ -27,14 +27,14 @@
             android:layout_width="match_parent"
             android:layout_marginTop="16dp"
             android:layout_height="wrap_content"
-            android:text="The API Key is used to fetch your trade offers. Click the Get API Key button to find it. You can use any URL for the domain field.\nAfter receiving an API Key, copy it and enter it in the text field below."/>
+            android:text="@string/api_key_body"/>
 
         <EditText
             android:id="@+id/et_api_key"
             android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="API Key (required)"/>
+            android:hint="@string/api_key_hint"/>
 
         <Button
             android:id="@+id/button_get_api_key"
@@ -42,13 +42,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:onClick="getApiKey"
-            android:hint="Get API Key"/>
+            android:hint="@string/api_key_get"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Checking interval"
+            android:text="@string/delay_header"
             style="@style/PrefsHeaderStyle"/>
 
     </LinearLayout>
@@ -67,14 +67,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:text="Checking interval"/>
+            android:text="@string/delay_button_title"/>
 
         <TextView
             android:id="@+id/tv_delay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:text="10 minutes"/>
+            android:text="@string/delay_button_text"/>
     </RelativeLayout>
 
     <TextView
