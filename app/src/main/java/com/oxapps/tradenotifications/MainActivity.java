@@ -51,8 +51,17 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
         }
         delayView = (TextView) findViewById(R.id.tv_delay);
         delay = prefs.getLong(PREFS_KEY_DELAY, 900000);
-        String delayText = delay == 0 ? "Disabled" : (String.valueOf(delay / 60000) + " minutes");
-        delayView.setText(delayText);
+        delayView.setText(getDelayText(delay));
+    }
+
+    private String getDelayText(long delay) {
+        if(delay == 0) {
+            return getString(R.string.disabled);
+        } else if (delay < (120 * 60000)) {
+            return getString(R.string.delay_min, delay / 60000);
+        } else {
+            return getString(R.string.delay_hours, delay / 3600000);
+        }
     }
 
     @Override

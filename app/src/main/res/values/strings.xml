@@ -15,6 +15,8 @@
     <string name="donate_body">Click here to open author\'s Steam Trade URL</string>
 
     <string name="disabled">Disabled</string>
+    <string name="delay_min">%1$d minutes</string>
+    <string name="delay_hours">%1$d hours</string>
     <string name="delay_5">5 minutes</string>
     <string name="delay_10">10 minutes</string>
     <string name="delay_15">15 minutes</string>
