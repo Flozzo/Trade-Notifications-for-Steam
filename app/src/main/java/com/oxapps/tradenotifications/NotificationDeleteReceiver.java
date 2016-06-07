@@ -22,6 +22,7 @@ public class NotificationDeleteReceiver extends BroadcastReceiver {
         if(intent.hasExtra(BackgroundIntentService.NOTIFICATION_CLICKED)) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW);
             browserIntent.setData(Uri.parse(TRADE_OFFERS_URL));
+            browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.getApplicationContext().startActivity(browserIntent);
         }
     }
