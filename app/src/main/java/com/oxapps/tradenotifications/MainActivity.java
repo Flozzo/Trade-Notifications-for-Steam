@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -22,7 +23,9 @@ public class MainActivity extends AppCompatActivity implements SetDelayDialogFra
     private EditText apiKeyView;
     private SharedPreferences prefs;
     private TextView delayView;
+    private Button apiKeyButton;
     private long delay;
+    private boolean apiKeyLocked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +39,15 @@ public class MainActivity extends AppCompatActivity implements SetDelayDialogFra
         apiKeyView = (EditText) findViewById(R.id.et_api_key);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String apiKey = prefs.getString(PREFS_KEY_API_KEY, "");
-
+        if(!apiKey.equals("") && apiKey.length() == 32) {
+            //Prevent accidental editing of API Key
+            apiKeyView.setText(apiKey);
+            apiKeyLocked = true;
+            apiKeyView.setFocusable(false);
+            apiKeyView.setEnabled(false);
+            apiKeyButton = (Button) findViewById(R.id.button_get_api_key);
+            apiKeyButton.setText("Edit API Key");
+        }
         delayView = (TextView) findViewById(R.id.tv_delay);
         delay = prefs.getLong(PREFS_KEY_DELAY, 900000);
         delayView.setText(String.valueOf(delay / 60000) + " minutes");
@@ -64,9 +75,17 @@ public class MainActivity extends AppCompatActivity implements SetDelayDialogFra
     }
 
     public void getApiKey(View v) {
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-        CustomTabsIntent customTabsIntent = builder.build();
-        customTabsIntent.launchUrl(this, Uri.parse(API_KEY_URL));
+        if(apiKeyLocked) {
+            apiKeyView.setFocusableInTouchMode(true);
+            apiKeyButton.setText("Get API Key");
+            apiKeyLocked = false;
+            apiKeyView.setEnabled(true);
+        } else {
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            CustomTabsIntent customTabsIntent = builder.build();
+            customTabsIntent.launchUrl(this, Uri.parse(API_KEY_URL));
+        }
+
     }
 
     public void showIntervalDialog(View v) {
