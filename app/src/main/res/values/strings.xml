@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Trade Notifications</string>
+
+    <string name="donate_header">Support Development</string>
+    <string name="donate_title">Donate Steam items</string>
+    <string name="donate_body">Click here to open author\'s Steam Trade URL</string>
 </resources>

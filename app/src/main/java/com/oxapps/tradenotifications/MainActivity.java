@@ -18,6 +18,7 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity implements DelayDialogFragment.OnDelaySetListener {
 
     private static final String API_KEY_URL = "https://steamcommunity.com/dev/apikey";
+    private static final String TRADE_URL = "https://steamcommunity.com/tradeoffer/new/?partner=72233084&token=NWnuxGBb";
     public static final String PREFS_KEY_API_KEY = "api_key";
     public static final String PREFS_KEY_DELAY = "delay";
     private EditText apiKeyView;
@@ -56,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
 
     @Override
     protected void onPause() {
-        //only set if not already set
         super.onPause();
         String apiKey = apiKeyView.getText().toString().trim();
         if(apiKey.length() == 32) {
@@ -102,5 +102,11 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
     @Override public void onDelaySet(String text, long delay) {
         delayView.setText(text);
         this.delay = delay;
+    }
+
+    public void onDonationClicked(View view) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+        browserIntent.setData(Uri.parse(TRADE_URL));
+        startActivity(browserIntent);
     }
 }
