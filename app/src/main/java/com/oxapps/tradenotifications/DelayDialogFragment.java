@@ -17,8 +17,8 @@ public class DelayDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        final String[] delays = {"5 minutes", "10 minutes", "15 minutes", "30 minutes", "1 hour", "2 hours", "4 hours"};
-        final int[] delayMinutes = {5, 10, 15, 30, 60, 120, 240};
+        final String[] delays = {"Disabled", "5 minutes", "10 minutes", "15 minutes", "30 minutes", "1 hour", "2 hours", "4 hours"};
+        final int[] delayMinutes = {0, 5, 10, 15, 30, 60, 120, 240};
         builder.setTitle("Checking Interval")
 
                 .setItems(delays, new DialogInterface.OnClickListener() {

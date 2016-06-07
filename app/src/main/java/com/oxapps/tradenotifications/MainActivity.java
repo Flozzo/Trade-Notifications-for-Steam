@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
         }
         delayView = (TextView) findViewById(R.id.tv_delay);
         delay = prefs.getLong(PREFS_KEY_DELAY, 900000);
-        delayView.setText(String.valueOf(delay / 60000) + " minutes");
+        String delayText = delay == 0 ? "Disabled" : (String.valueOf(delay / 60000) + " minutes");
+        delayView.setText(delayText);
     }
 
     @Override
@@ -68,9 +69,13 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
             backgroundIntent.putExtra(PREFS_KEY_API_KEY, apiKey);
             PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, backgroundIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime(),
-                    delay, pendingIntent);
+            if(delay == 0) {
+                alarmManager.cancel(pendingIntent);
+            } else {
+                alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime(),
+                        delay, pendingIntent);
+            }
         }
     }
 
