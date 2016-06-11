@@ -84,8 +84,8 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
     protected void onPause() {
         super.onPause();
         String apiKey = apiKeyView.getText().toString().trim();
-        if(apiKey.length() == 32) {
-            //Valid API Key, supposedly
+        if(apiKey.length() == 32 && valueChanged(apiKey)) {
+            //Valid API Key, supposedly and something has changed
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(PREFS_KEY_API_KEY, apiKey);
             editor.apply();
@@ -102,6 +102,13 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
                         delay, pendingIntent);
             }
         }
+    }
+
+    private boolean valueChanged(String apiKey) {
+        String originalApiKey = prefs.getString(PREFS_KEY_API_KEY, "");
+        long originalDelay = prefs.getLong(PREFS_KEY_DELAY, -1);
+
+        return (delay != originalDelay || !apiKey.equals(originalApiKey));
     }
 
     public void getApiKey(View v) {
