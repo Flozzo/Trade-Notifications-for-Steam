@@ -32,10 +32,10 @@ public class NotificationDeleteReceiver extends BroadcastReceiver {
         long newRequestTime = System.currentTimeMillis() / 1000;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong(BackgroundIntentService.LAST_DELETE_KEY, newRequestTime);
+        editor.putLong(BackgroundTaskService.LAST_DELETE_KEY, newRequestTime);
         editor.apply();
 
-        if(intent.hasExtra(BackgroundIntentService.NOTIFICATION_CLICKED)) {
+        if(intent.hasExtra(BackgroundTaskService.NOTIFICATION_CLICKED)) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW);
             browserIntent.setData(Uri.parse(TRADE_OFFERS_URL));
             browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

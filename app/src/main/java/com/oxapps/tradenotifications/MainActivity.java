@@ -16,20 +16,22 @@
 
 package com.oxapps.tradenotifications;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
 
 public class MainActivity extends AppCompatActivity implements DelayDialogFragment.OnDelaySetListener {
 
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
     private static final String TRADE_URL = "https://steamcommunity.com/tradeoffer/new/?partner=72233084&token=NWnuxGBb";
     public static final String PREFS_KEY_API_KEY = "api_key";
     public static final String PREFS_KEY_DELAY = "delay";
+    public static final String TRADE_OFFER_TAG = "tradeoffers";
     private EditText apiKeyView;
     private SharedPreferences prefs;
     private TextView delayView;
@@ -66,17 +69,17 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
             apiKeyButton.setText(R.string.api_key_edit);
         }
         delayView = (TextView) findViewById(R.id.tv_delay);
-        delay = prefs.getLong(PREFS_KEY_DELAY, 900000);
+        delay = prefs.getLong(PREFS_KEY_DELAY, 900);
         delayView.setText(getDelayText(delay));
     }
 
     private String getDelayText(long delay) {
         if(delay == 0) {
             return getString(R.string.disabled);
-        } else if (delay < (120 * 60000)) {
-            return getString(R.string.delay_min, delay / 60000);
+        } else if (delay < (120 * 60)) {
+            return getString(R.string.delay_min, delay / 60);
         } else {
-            return getString(R.string.delay_hours, delay / 3600000);
+            return getString(R.string.delay_hours, delay / 3600);
         }
     }
 
@@ -85,21 +88,29 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
         super.onPause();
         String apiKey = apiKeyView.getText().toString().trim();
         if(apiKey.length() == 32 && valueChanged(apiKey)) {
-            //Valid API Key, supposedly and something has changed
+            //Valid API Key, something has changed
+
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(PREFS_KEY_API_KEY, apiKey);
+            editor.putLong(MainActivity.PREFS_KEY_DELAY, delay);
             editor.apply();
 
-            Intent backgroundIntent = new Intent(this, BackgroundIntentService.class);
-            backgroundIntent.putExtra(PREFS_KEY_API_KEY, apiKey);
-            PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, backgroundIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            if(delay == 0) {
-                alarmManager.cancel(pendingIntent);
+            GcmNetworkManager networkManager = GcmNetworkManager.getInstance(this);
+
+
+            if(delay != 0) {
+                Log.d("schedule", "scheduling");
+                PeriodicTask task = new PeriodicTask.Builder()
+                        .setService(BackgroundTaskService.class)
+                        .setTag(TRADE_OFFER_TAG)
+                        .setPeriod(delay)
+                        .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                        .setPersisted(true)
+                        .setUpdateCurrent(true)
+                        .build();
+                networkManager.schedule(task);
             } else {
-                alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        SystemClock.elapsedRealtime(),
-                        delay, pendingIntent);
+                networkManager.cancelTask(TRADE_OFFER_TAG, BackgroundTaskService.class);
             }
         }
     }

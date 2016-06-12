@@ -21,16 +21,13 @@
         </activity>
 
         <service
-            android:name=".BackgroundIntentService"
-            android:exported="false">
-        </service>
-
-        <receiver android:name=".BootReceiver"
-                  android:enabled="true">
+            android:name=".BackgroundTaskService"
+            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
             </intent-filter>
-        </receiver>
+        </service>
 
         <receiver android:name=".NotificationDeleteReceiver"
                   android:enabled="true">

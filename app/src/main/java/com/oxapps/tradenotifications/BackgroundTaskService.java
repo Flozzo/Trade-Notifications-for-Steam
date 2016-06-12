@@ -16,8 +16,6 @@
 
 package com.oxapps.tradenotifications;
 
-import android.app.AlarmManager;
-import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -27,6 +25,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+
+import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.GcmTaskService;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
+import com.google.android.gms.gcm.TaskParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +43,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class BackgroundIntentService extends IntentService {
+public class BackgroundTaskService extends GcmTaskService {
     public static final String LAST_DELETE_KEY = "lastDelete";
     public static final String LAST_CHECK_KEY = "lastChecked";
     private static final String TIME_CREATED_KEY = "time_created";
@@ -48,29 +53,46 @@ public class BackgroundIntentService extends IntentService {
     private String ORIGINAL_URL = "https://api.steampowered.com/IEconService/GetTradeOffers/v1/?key=";
     private String URL_OPTIONS = "&format=json&get_sent_offers=0&get_received_offers=1&get_descriptions=0&active_only=1&historical_only=0";
     OkHttpClient client = new OkHttpClient();
+    private static final String TAG = "BackgroundTaskService";
 
 
-
-    public BackgroundIntentService() {
-        super("BackgroundIntentService");
+    @Override public void onInitializeTasks() {
+        super.onInitializeTasks();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        long delay = prefs.getLong(MainActivity.PREFS_KEY_DELAY, 900);
+        String apiKey = prefs.getString(MainActivity.PREFS_KEY_API_KEY, "");
+        if(apiKey.length() == 32) {
+            GcmNetworkManager networkManager = GcmNetworkManager.getInstance(this);
+            PeriodicTask task = new PeriodicTask.Builder()
+                    .setService(BackgroundTaskService.class)
+                    .setTag(MainActivity.TRADE_OFFER_TAG)
+                    .setPeriod(delay)
+                    .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                    .setPersisted(true)
+                    .build();
+            networkManager.schedule(task);
+        }
     }
 
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
+    @Override public int onRunTask(TaskParams taskParams) {
+        Log.d(TAG, "onRunTask: " + taskParams.getTag());
         if(!isInternetAvailable()) {
             stopSelf();
-            return;
+            return GcmNetworkManager.RESULT_FAILURE;
         }
-        String apiKey = intent.getStringExtra(MainActivity.PREFS_KEY_API_KEY);
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         long lastDeleteTime = prefs.getLong(LAST_DELETE_KEY, 0);
         long lastCheckTime = prefs.getLong(LAST_CHECK_KEY, 0);
         long currentTime = System.currentTimeMillis() / 1000;
 
+        String apiKey = prefs.getString(MainActivity.PREFS_KEY_API_KEY, "");
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(LAST_CHECK_KEY, currentTime);
         editor.apply();
+
+
 
         String url = ORIGINAL_URL + apiKey + URL_OPTIONS;
         int newOfferCount = 0;
@@ -80,12 +102,12 @@ public class BackgroundIntentService extends IntentService {
         try {
             String json = getTradeOffers(url);
             if(json.equals("")) {
-                return;
+                return GcmNetworkManager.RESULT_FAILURE;
             }
             JSONObject response = new JSONObject(json).getJSONObject("response");
             if(!response.has("trade_offers_received") ) {
                 removeNotification();
-                return;
+                return GcmNetworkManager.RESULT_SUCCESS;
             }
             JSONArray tradeOffers = response.getJSONArray("trade_offers_received");
             totalOfferCount = tradeOffers.length();
@@ -113,7 +135,9 @@ public class BackgroundIntentService extends IntentService {
         if(newSinceLastCheckCount > 0) {
             showNewTradeNotification(totalOfferCount, newOfferCount);
         }
+        return GcmNetworkManager.RESULT_SUCCESS;
     }
+
 
     private void removeNotification() {
         //No more trade offers so we don't want to be lying to the user
@@ -178,10 +202,8 @@ public class BackgroundIntentService extends IntentService {
     private void handleBadApiKeyError() {
         showErrorNotification();
         //Cancel scheduled task so we don't get 100s of error notifications
-        Intent backgroundIntent = new Intent(getApplicationContext(), BackgroundIntentService.class);
-        PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, backgroundIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pendingIntent);
+        GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(this);
+        gcmNetworkManager.cancelAllTasks(BackgroundTaskService.class);
     }
 
     private void showErrorNotification() {

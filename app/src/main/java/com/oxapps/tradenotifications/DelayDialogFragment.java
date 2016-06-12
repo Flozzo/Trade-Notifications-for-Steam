@@ -18,10 +18,8 @@ package com.oxapps.tradenotifications;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
@@ -39,11 +37,7 @@ public class DelayDialogFragment extends DialogFragment {
 
                 .setItems(delays, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        long delay = delayMinutes[which] * 60 * 1000;
-                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putLong(MainActivity.PREFS_KEY_DELAY, delay);
-                        editor.apply();
+                        long delay = delayMinutes[which] * 60;
                         if(delaySetListener != null) {
                             delaySetListener.onDelaySet(delays[which], delay);
                         }
