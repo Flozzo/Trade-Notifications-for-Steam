@@ -24,7 +24,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 
 public class NotificationDeleteReceiver extends BroadcastReceiver {
-    private static final String TRADE_OFFERS_URL = "https://steamcommunity.com/id/id/tradeoffers/";
+    private static final String TRADE_OFFERS_URL = "https://steamcommunity.com/id/me/tradeoffers/";
 
 
     @Override
