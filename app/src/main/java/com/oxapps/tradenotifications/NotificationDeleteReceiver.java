@@ -31,8 +31,9 @@ public class NotificationDeleteReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         long newRequestTime = System.currentTimeMillis() / 1000;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        long lastCheckTime = prefs.getLong(BackgroundTaskService.LAST_CHECK_KEY, newRequestTime);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong(BackgroundTaskService.LAST_DELETE_KEY, newRequestTime);
+        editor.putLong(BackgroundTaskService.LAST_DELETE_KEY, lastCheckTime);
         editor.apply();
 
         if(intent.hasExtra(BackgroundTaskService.NOTIFICATION_CLICKED)) {
