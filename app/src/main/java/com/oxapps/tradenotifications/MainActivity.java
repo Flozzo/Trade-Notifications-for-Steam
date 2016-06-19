@@ -18,10 +18,12 @@ package com.oxapps.tradenotifications;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.customtabs.CustomTabsIntent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -35,11 +37,11 @@ import com.google.android.gms.gcm.Task;
 
 public class MainActivity extends AppCompatActivity implements DelayDialogFragment.OnDelaySetListener {
 
-    private static final String API_KEY_URL = "https://steamcommunity.com/dev/apikey";
     private static final String TRADE_URL = "https://steamcommunity.com/tradeoffer/new/?partner=72233084&token=NWnuxGBb";
-    public static final String PREFS_KEY_API_KEY = "api_key";
-    public static final String PREFS_KEY_DELAY = "delay";
+    public static final String KEY_API_KEY = "api_key";
+    public static final String KEY_DELAY = "delay";
     public static final String TRADE_OFFER_TAG = "tradeoffers";
+    private static final int API_KEY_REQUEST = 1;
     private EditText apiKeyView;
     private SharedPreferences prefs;
     private TextView delayView;
@@ -58,18 +60,15 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
     private void initViews() {
         apiKeyView = (EditText) findViewById(R.id.et_api_key);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String apiKey = prefs.getString(PREFS_KEY_API_KEY, "");
+        String apiKey = prefs.getString(KEY_API_KEY, "");
         apiKeyButton = (Button) findViewById(R.id.button_get_api_key);
         if(!apiKey.equals("") && apiKey.length() == 32) {
             //Prevent accidental editing of API Key
             apiKeyView.setText(apiKey);
-            apiKeyLocked = true;
-            apiKeyView.setFocusable(false);
-            apiKeyView.setEnabled(false);
-            apiKeyButton.setText(R.string.api_key_edit);
+            toggleApiKey(true);
         }
         delayView = (TextView) findViewById(R.id.tv_delay);
-        delay = prefs.getLong(PREFS_KEY_DELAY, 900);
+        delay = prefs.getLong(KEY_DELAY, 900);
         delayView.setText(getDelayText(delay));
     }
 
@@ -91,8 +90,8 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
             //Valid API Key, something has changed
 
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(PREFS_KEY_API_KEY, apiKey);
-            editor.putLong(MainActivity.PREFS_KEY_DELAY, delay);
+            editor.putString(KEY_API_KEY, apiKey);
+            editor.putLong(MainActivity.KEY_DELAY, delay);
             editor.apply();
 
             GcmNetworkManager networkManager = GcmNetworkManager.getInstance(this);
@@ -115,25 +114,47 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
         }
     }
 
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == API_KEY_REQUEST) {
+            if(resultCode == RESULT_OK) {
+                String apiKey = data.getStringExtra(KEY_API_KEY);
+                apiKeyView.setText(apiKey);
+                toggleApiKey(true);
+            } else {
+                Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), R.string.api_key_error, Snackbar.LENGTH_LONG);
+                snackbar.show();
+            }
+        }
+    }
+
     private boolean valueChanged(String apiKey) {
-        String originalApiKey = prefs.getString(PREFS_KEY_API_KEY, "");
-        long originalDelay = prefs.getLong(PREFS_KEY_DELAY, -1);
+        String originalApiKey = prefs.getString(KEY_API_KEY, "");
+        long originalDelay = prefs.getLong(KEY_DELAY, -1);
 
         return (delay != originalDelay || !apiKey.equals(originalApiKey));
     }
 
     public void getApiKey(View v) {
         if(apiKeyLocked) {
-            apiKeyView.setFocusableInTouchMode(true);
-            apiKeyButton.setText(R.string.api_key_get);
-            apiKeyLocked = false;
-            apiKeyView.setEnabled(true);
+            toggleApiKey(false);
+        } else if(isInternetAvailable()){
+            Intent intent = new Intent(this, ApiKeyActivity.class);
+            startActivityForResult(intent, API_KEY_REQUEST);
         } else {
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-            CustomTabsIntent customTabsIntent = builder.build();
-            customTabsIntent.launchUrl(this, Uri.parse(API_KEY_URL));
+            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), R.string.no_internet, Snackbar.LENGTH_SHORT);
+            snackbar.show();
         }
 
+    }
+
+    private void toggleApiKey(boolean lock) {
+        apiKeyLocked = lock;
+        apiKeyView.setFocusable(!lock);
+        apiKeyView.setFocusableInTouchMode(!lock);
+        apiKeyView.setEnabled(!lock);
+        int buttonTextRes = lock ? R.string.api_key_edit : R.string.api_key_get;
+        apiKeyButton.setText(buttonTextRes);
     }
 
     public void showIntervalDialog(View v) {
@@ -151,5 +172,14 @@ public class MainActivity extends AppCompatActivity implements DelayDialogFragme
         Intent browserIntent = new Intent(Intent.ACTION_VIEW);
         browserIntent.setData(Uri.parse(TRADE_URL));
         startActivity(browserIntent);
+    }
+
+    private boolean isInternetAvailable() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
     }
 }

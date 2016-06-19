@@ -22,16 +22,21 @@
 
         <service
             android:name=".BackgroundTaskService"
-            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
-            android:exported="true">
+            android:exported="true"
+            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE">
             <intent-filter>
                 <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
             </intent-filter>
         </service>
 
-        <receiver android:name=".NotificationDeleteReceiver"
-                  android:enabled="true">
+        <receiver
+            android:name=".NotificationDeleteReceiver"
+            android:enabled="true">
         </receiver>
+
+        <activity android:name=".ApiKeyActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Trade Notifications</string>
     <string name="api_key_header">Steam Web API Key</string>
-    <string name="api_key_body">The API Key is used to fetch your trade offers. Click the Get API Key button to find it. You can use any URL for the domain field.\nAfter receiving an API Key, copy it and enter it in the text field below.</string>
+    <string name="api_key_body">The API Key is used to fetch your trade offers.\nIf you have no idea what this is, click the button below and it will be retrieved for you</string>
     <string name="api_key_hint">API Key (required)</string>
     <string name="api_key_get">Get API Key</string>
     <string name="api_key_edit">Edit API Key</string>
@@ -25,5 +25,7 @@
     <string name="delay_120">2 hours</string>
     <string name="delay_240">4 hours</string>
 
-
+    <string name="no_internet">No internet connection available</string>
+    <string name="api_key_error">Error retrieving API Key</string>
+    <string name="loading_api_key">Retrieving API Key</string>
 </resources>
