@@ -24,8 +24,6 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 
 public class NotificationDeleteReceiver extends BroadcastReceiver {
-    private static final String TRADE_OFFERS_URL = "https://steamcommunity.com/id/me/tradeoffers/";
-
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -38,7 +36,11 @@ public class NotificationDeleteReceiver extends BroadcastReceiver {
 
         if(intent.hasExtra(BackgroundTaskService.NOTIFICATION_CLICKED)) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW);
-            browserIntent.setData(Uri.parse(TRADE_OFFERS_URL));
+            String username = prefs.getString(ApiKeyActivity.KEY_USERNAME, "me");
+            boolean isProfile = prefs.getBoolean(ApiKeyActivity.KEY_PROFILE, false);
+            String identifier = isProfile ? "profile/" : "id/";
+            String url = "https://steamcommunity.com/" + identifier + username + "/tradeoffers";
+            browserIntent.setData(Uri.parse(url));
             browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.getApplicationContext().startActivity(browserIntent);
         }

@@ -18,8 +18,10 @@ package com.oxapps.tradenotifications;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -51,8 +53,10 @@ import okhttp3.Response;
 public class ApiKeyActivity extends AppCompatActivity {
     private static final String LOGIN_URL = "https://steamcommunity.com/login/home/?goto=0";
     private static final String API_KEY_URL = "https://steamcommunity.com/dev/registerkey";
-    private static final String HOME_URL_HTTP = "http://steamcommunity.com/id/(\\w)+/home";
-    private static final String HOME_URL_HTTPS = "https://steamcommunity.com/id/(\\w)+/home";
+    public static final String KEY_USERNAME = "username";
+    public static final String KEY_PROFILE = "isProfile";
+    private static final String HOME_URL_HTTP = "http://steamcommunity.com/(id|profiles)/(\\w)+/home";
+    private static final String HOME_URL_HTTPS = "https://steamcommunity.com/(id|profiles)/(\\w)+/home";
     private WebView mWebView;
     private LinearLayout mProgressView;
     private ProgressBar mProgressBarWeb;
@@ -86,6 +90,20 @@ public class ApiKeyActivity extends AppCompatActivity {
             super.onPageFinished(view, url);
             String cookies = CookieManager.getInstance().getCookie(url);
             if(url.matches(HOME_URL_HTTP)) {
+                //first extract the username:
+                boolean isProfile = url.matches("http://steamcommunity.com/profiles/(\\w)+/home");
+                Pattern keyPattern = Pattern.compile("/(\\w+)/home");
+                Matcher matcher = keyPattern.matcher(url);
+                if(matcher.find()) {
+                    String username = matcher.group(1);
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApiKeyActivity.this);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString(KEY_USERNAME, username);
+                    editor.putBoolean(KEY_PROFILE, isProfile);
+                    editor.apply();
+                }
+
+
                 //Steam redirects us to the insecure version of /id/home, which does not give the steamLoginSecure cookie
                 //Since we need this cookie to make HTTPS requests, we need to load up any HTTPS version first, which provides it
                 mWebView.setVisibility(View.GONE);
@@ -158,7 +176,6 @@ public class ApiKeyActivity extends AppCompatActivity {
             Matcher matcher = keyPattern.matcher(bodyString);
 
             Intent resultIntent = new Intent();
-
             if(matcher.find()) {
                 String apiKey = matcher.group(1);
                 resultIntent.putExtra(MainActivity.KEY_API_KEY, apiKey);
