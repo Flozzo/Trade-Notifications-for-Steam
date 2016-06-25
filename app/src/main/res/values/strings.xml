@@ -11,8 +11,8 @@
     <string name="delay_button_text">10 minutes</string>
 
     <string name="donate_header">Support Development</string>
-    <string name="donate_title">Donate Steam items</string>
-    <string name="donate_body">Click here to open author\'s Steam Trade URL</string>
+    <string name="donate_title">Donate (Steam)</string>
+    <string name="donate_body">Click here to open author\'s Steam trade link</string>
 
     <string name="disabled">Disabled</string>
     <string name="delay_min">%1$d minutes</string>
