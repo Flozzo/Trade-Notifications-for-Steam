@@ -68,6 +68,7 @@ public class BackgroundTaskService extends GcmTaskService {
                     .setPeriod(delay)
                     .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
                     .setPersisted(true)
+                    .setUpdateCurrent(true)
                     .build();
             networkManager.schedule(task);
         }
@@ -103,7 +104,7 @@ public class BackgroundTaskService extends GcmTaskService {
                 return GcmNetworkManager.RESULT_FAILURE;
             }
             JSONObject response = new JSONObject(json).getJSONObject("response");
-            if(!response.has("trade_offers_received") ) {
+            if(response.length() == 0) {
                 removeNotification();
                 return GcmNetworkManager.RESULT_SUCCESS;
             }
