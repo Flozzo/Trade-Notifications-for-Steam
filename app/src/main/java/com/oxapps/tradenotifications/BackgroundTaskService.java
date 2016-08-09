@@ -49,9 +49,10 @@ public class BackgroundTaskService extends GcmTaskService {
     private static final String OFFER_STATE_KEY = "trade_offer_state";
     public static final String NOTIFICATION_CLICKED = "clicked";
     private static final int OFFER_STATE_ACTIVE = 2;
+    private static final int OFFER_STATE_ACCEPTED = 3;
 
     private String ORIGINAL_URL = "https://api.steampowered.com/IEconService/GetTradeOffers/v1/?key=";
-    private String URL_OPTIONS = "&format=json&get_sent_offers=0&get_received_offers=1&get_descriptions=0&active_only=1&historical_only=0";
+    private String URL_OPTIONS_NEW_TRADES = "&format=json&get_sent_offers=0&get_received_offers=1&get_descriptions=0&active_only=1&historical_only=0";
     OkHttpClient client = new OkHttpClient();
 
 
@@ -91,9 +92,23 @@ public class BackgroundTaskService extends GcmTaskService {
         editor.putLong(LAST_CHECK_KEY, currentTime);
         editor.apply();
 
+        getReceivedOffers(apiKey, lastCheckTime, lastDeleteTime);
+
+        return GcmNetworkManager.RESULT_SUCCESS;
+    }
 
 
-        String url = ORIGINAL_URL + apiKey + URL_OPTIONS;
+
+    private void removeNotification() {
+        //No more trade offers so we don't want to be lying to the user
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
+    }
+
+    private void getReceivedOffers(String apiKey, long lastCheckTime, long lastDeleteTime) {
+        String url = ORIGINAL_URL + apiKey + URL_OPTIONS_NEW_TRADES;
+
         int newOfferCount = 0;
         int newSinceLastCheckCount = 0;
         int totalOfferCount = 0;
@@ -101,12 +116,12 @@ public class BackgroundTaskService extends GcmTaskService {
         try {
             String json = getTradeOffers(url);
             if(json.equals("")) {
-                return GcmNetworkManager.RESULT_FAILURE;
+                return;
             }
             JSONObject response = new JSONObject(json).getJSONObject("response");
-            if(response.length() == 0) {
+            if(response.length() == 0 ) {
                 removeNotification();
-                return GcmNetworkManager.RESULT_SUCCESS;
+                return;
             }
             JSONArray tradeOffers = response.getJSONArray("trade_offers_received");
             totalOfferCount = tradeOffers.length();
@@ -133,44 +148,7 @@ public class BackgroundTaskService extends GcmTaskService {
         if(newSinceLastCheckCount > 0) {
             showNewTradeNotification(totalOfferCount, newOfferCount);
         }
-        return GcmNetworkManager.RESULT_SUCCESS;
     }
-
-
-    private void removeNotification() {
-        //No more trade offers so we don't want to be lying to the user
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancelAll();
-    }
-
-
-    private void showNewTradeNotification(int totalOfferCount, int newOfferCount) {
-        String titleText = String.valueOf(newOfferCount) + " new trade offer" + ((newOfferCount == 1) ? "" : "s");
-        String contentText = "You now have " + String.valueOf(totalOfferCount) + " active trade offer" + ((totalOfferCount == 1) ? "" : "s");
-
-        Intent deleteIntent = new Intent(this, NotificationDeleteReceiver.class);
-        PendingIntent pendingDeleteIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 5, deleteIntent, 0);
-
-        Intent clickIntent = new Intent(this, NotificationDeleteReceiver.class);
-        clickIntent.putExtra(NOTIFICATION_CLICKED, "clicked");
-        PendingIntent pendingContentIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 6, clickIntent, 0);
-
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_notif_trade)
-                .setContentTitle(titleText)
-                .setContentText(contentText)
-                .setAutoCancel(true)
-                .setVibrate(new long[]{300, 300, 300, 300, 300})
-                .setDeleteIntent(pendingDeleteIntent)
-                .setContentIntent(pendingContentIntent);
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        notificationManager.notify(10101, notificationBuilder.build());
-    }
-
 
     private String getTradeOffers(String url) throws IOException {
         Request request = new Request.Builder()
@@ -186,6 +164,32 @@ public class BackgroundTaskService extends GcmTaskService {
             }
             return "";
         }
+    }
+
+    private void showNewTradeNotification(int totalOfferCount, int newOfferCount) {
+        String titleText = String.valueOf(newOfferCount) + " new trade offer" + ((newOfferCount == 1) ? "" : "s");
+        String contentText = "You now have " + String.valueOf(totalOfferCount) + " active trade offer" + ((totalOfferCount == 1) ? "" : "s");
+
+        Intent deleteIntent = new Intent(this, NotificationDeleteReceiver.class);
+        PendingIntent pendingDeleteIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 5, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent clickIntent = new Intent(this, NotificationDeleteReceiver.class);
+        clickIntent.putExtra(NOTIFICATION_CLICKED, "clicked");
+        PendingIntent pendingContentIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 6, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_notif_trade)
+                .setContentTitle(titleText)
+                .setContentText(contentText)
+                .setAutoCancel(true)
+                .setVibrate(new long[]{300, 300, 300, 300, 300})
+                .setDeleteIntent(pendingDeleteIntent)
+                .setContentIntent(pendingContentIntent);
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notificationManager.notify(10101, notificationBuilder.build());
     }
 
     private boolean isInternetAvailable() {
