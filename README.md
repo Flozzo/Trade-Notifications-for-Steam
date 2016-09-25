@@ -1,4 +1,4 @@
-# Trade-Notifications-for-Steam
+# Trade Notifications for Steam
 Android app for Steam trade offer notifications on new trade offers. Integrated with the Steam API to fetch the user's trade offers and uses the [GcmNetworkManager](https://developers.google.com/cloud-messaging/network-manager) API for user-set time interval checking without severely impacting battery life. 
 
 ## License
