@@ -34,7 +34,7 @@
             android:enabled="true">
         </receiver>
 
-        <activity android:name=".ApiKeyActivity"
+        <activity android:name=".apikey.ApiKeyActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>

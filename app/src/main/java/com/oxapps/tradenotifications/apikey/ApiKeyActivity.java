@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Flynn van Os
+ * Copyright 2017 Flynn van Os
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.oxapps.tradenotifications;
+package com.oxapps.tradenotifications.apikey;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +32,7 @@ import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.oxapps.tradenotifications.R;
 import com.oxapps.tradenotifications.model.IntentConsts;
 
 import java.io.IOException;
@@ -71,9 +71,6 @@ public class ApiKeyActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_api_key);
         setSupportActionBar(toolbar);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            WebView.setWebContentsDebuggingEnabled(true);
-        }
         mWebView = (WebView) findViewById(R.id.api_key_web);
         mProgressView = (LinearLayout) findViewById(R.id.progress_layout_api_key);
         mProgressBarWeb = (ProgressBar) findViewById(R.id.web_progress);

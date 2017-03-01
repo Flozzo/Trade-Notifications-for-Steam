@@ -23,6 +23,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
+import com.oxapps.tradenotifications.apikey.ApiKeyActivity;
+
 public class NotificationDeleteReceiver extends BroadcastReceiver {
 
     @Override

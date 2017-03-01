@@ -30,9 +30,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.oxapps.tradenotifications.ApiKeyActivity;
 import com.oxapps.tradenotifications.DelayDialogFragment;
 import com.oxapps.tradenotifications.R;
+import com.oxapps.tradenotifications.apikey.ApiKeyActivity;
 import com.oxapps.tradenotifications.model.ApplicationSettingsImpl;
 import com.oxapps.tradenotifications.model.BackgroundTaskScheduler;
 import com.oxapps.tradenotifications.model.ConnectionUtils;
