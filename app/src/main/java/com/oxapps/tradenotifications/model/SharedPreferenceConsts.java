@@ -35,4 +35,14 @@ public final class SharedPreferenceConsts {
      * Default trade checking delay in seconds
      */
     public static final long DEFAULT_REFRESH_DELAY = 900;
+
+    /**
+     * Preference key for the Steam username
+     */
+    public static final String USERNAME = "username";
+
+    /**
+     * Preference key indicating whether it is a custom profile url or not
+     */
+    public static final String PROFILE = "isProfile";
 }

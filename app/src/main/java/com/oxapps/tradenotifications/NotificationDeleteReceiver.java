@@ -23,7 +23,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
-import com.oxapps.tradenotifications.apikey.ApiKeyActivity;
+import com.oxapps.tradenotifications.model.SharedPreferenceConsts;
 
 public class NotificationDeleteReceiver extends BroadcastReceiver {
 
@@ -38,8 +38,8 @@ public class NotificationDeleteReceiver extends BroadcastReceiver {
 
         if(intent.hasExtra(BackgroundTaskService.NOTIFICATION_CLICKED)) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW);
-            String username = prefs.getString(ApiKeyActivity.KEY_USERNAME, "me");
-            boolean isProfile = prefs.getBoolean(ApiKeyActivity.KEY_PROFILE, false);
+            String username = prefs.getString(SharedPreferenceConsts.USERNAME, "me");
+            boolean isProfile = prefs.getBoolean(SharedPreferenceConsts.PROFILE, false);
             String identifier = isProfile ? "profile/" : "id/";
             String url = "https://steamcommunity.com/" + identifier + username + "/tradeoffers";
             browserIntent.setData(Uri.parse(url));

@@ -18,183 +18,118 @@ package com.oxapps.tradenotifications.apikey;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.oxapps.tradenotifications.R;
+import com.oxapps.tradenotifications.model.ApplicationSettingsImpl;
 import com.oxapps.tradenotifications.model.IntentConsts;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+/**
+ * Activity for retrieving or creating the API Key for the user
+ */
+public class ApiKeyActivity extends AppCompatActivity implements ApiKeyActivityView {
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.FormBody;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
-public class ApiKeyActivity extends AppCompatActivity {
-    private static final String LOGIN_URL = "https://steamcommunity.com/login/home/?goto=0";
-    private static final String API_KEY_URL = "https://steamcommunity.com/dev/registerkey";
-    public static final String KEY_USERNAME = "username";
-    public static final String KEY_PROFILE = "isProfile";
-    private static final String HOME_URL_HTTP = "http://steamcommunity.com/(id|profiles)/(\\w)+/home";
-    private static final String HOME_URL_HTTPS = "https://steamcommunity.com/(id|profiles)/(\\w)+/home";
     private WebView mWebView;
     private LinearLayout mProgressView;
     private ProgressBar mProgressBarWeb;
+
+    /**
+     * Presenter used for API Key logic
+     */
+    private ApiKeyPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_key);
+        presenter = new ApiKeyPresenter(this, new ApplicationSettingsImpl(this));
+        presenter.initialize();
+    }
 
+    /**
+     * Initialises views with values from their settings
+     */
+    @Override
+    public void initViews() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_api_key);
         setSupportActionBar(toolbar);
-
         mWebView = (WebView) findViewById(R.id.api_key_web);
         mProgressView = (LinearLayout) findViewById(R.id.progress_layout_api_key);
         mProgressBarWeb = (ProgressBar) findViewById(R.id.web_progress);
         mWebView.clearCache(true);
-        mWebView.setWebViewClient(new ApiKeyWebViewClient());
         mWebView.setWebChromeClient(new ProgressWebChromeClient());
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        mWebView.loadUrl(LOGIN_URL);
-
     }
 
-    private class ApiKeyWebViewClient extends WebViewClient {
-
-        @Override public void onPageFinished(WebView view, String url) {
-            super.onPageFinished(view, url);
-            String cookies = CookieManager.getInstance().getCookie(url);
-            if(url.matches(HOME_URL_HTTP)) {
-                //first extract the username:
-                boolean isProfile = url.matches("http://steamcommunity.com/profiles/(\\w)+/home");
-                Pattern keyPattern = Pattern.compile("/(\\w+)/home");
-                Matcher matcher = keyPattern.matcher(url);
-                if(matcher.find()) {
-                    String username = matcher.group(1);
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ApiKeyActivity.this);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString(KEY_USERNAME, username);
-                    editor.putBoolean(KEY_PROFILE, isProfile);
-                    editor.apply();
-                }
-
-
-                //Steam redirects us to the insecure version of /id/home, which does not give the steamLoginSecure cookie
-                //Since we need this cookie to make HTTPS requests, we need to load up any HTTPS version first, which provides it
-                mWebView.setVisibility(View.GONE);
-                mProgressView.setVisibility(View.VISIBLE);
-                mWebView.loadUrl(url.replace("http://", "https://"));
-            } else if(url.matches(HOME_URL_HTTPS)) {
-                String[] cookiesSplit = cookies.split("; ");
-                for (String cookie : cookiesSplit) {
-                    if(cookie.contains("sessionid")) {
-                        String sessionId = cookie.split("=")[1];
-                        getApiKey(sessionId, cookies);
-                        break;
-                    }
-                }
-            }
-        }
+    /**
+     * Loads a URL into the WebView
+     *
+     * @param url the URL to load
+     */
+    @Override
+    public void showUrl(String url) {
+        mWebView.loadUrl(url);
     }
 
+    /**
+     * Sets the WebViewClient on the WebView
+     *
+     * @param apiKeyWebViewClient the client to assign
+     */
+    @Override
+    public void setWebViewClient(ApiKeyWebViewClient apiKeyWebViewClient) {
+        mWebView.setWebViewClient(apiKeyWebViewClient);
+    }
+
+    /**
+     * Hides the webview and instead displays a progress spinner
+     */
+    @Override
+    public void hideWebShowProgress() {
+        mWebView.setVisibility(View.GONE);
+        mProgressView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Finishes the API Key retrieval with a canceled result
+     */
+    @Override
+    public void cancelAndFinish() {
+        setResult(Activity.RESULT_CANCELED);
+        finish();
+    }
+
+    /**
+     * Finishes the API Key retrieval with a successful result
+     */
+    @Override
+    public void successfullyFinish(String apiKey) {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(IntentConsts.API_KEY, apiKey);
+        setResult(Activity.RESULT_OK, resultIntent);
+        finish();
+    }
+
+    /**
+     * WebChromeClient for handling progress updates
+     */
     private class ProgressWebChromeClient extends WebChromeClient {
-        @Override public void onProgressChanged(WebView view, int newProgress) {
+        @Override
+        public void onProgressChanged(WebView view, int newProgress) {
             super.onProgressChanged(view, newProgress);
             int visibility = newProgress >= 100 ? View.GONE : View.VISIBLE;
             mProgressBarWeb.setVisibility(visibility);
             mProgressBarWeb.setProgress(newProgress);
         }
-    }
-
-    private void getApiKey(final String sessionId, final String cookies) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .cookieJar(new CookieJar() {
-                    @Override public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-
-                    }
-
-                    @Override public List<Cookie> loadForRequest(HttpUrl url) {
-                        ArrayList<Cookie> addedCookie = new ArrayList<>();
-                        for(String cookie : cookies.split("; ")) {
-                            addedCookie.add(getCookie(cookie));
-                        }
-                        return addedCookie;
-                    }
-                })
-                .build();
-
-        RequestBody formBody = new FormBody.Builder()
-                .add("agreeToTerms", "agreed")
-                .add("domain", "localhost")
-                .add("Submit", "Register")
-                .add("sessionid", sessionId)
-                .build();
-        Request request = new Request.Builder()
-                .url(API_KEY_URL)
-                .post(formBody)
-                .build();
-        client.newCall(request).enqueue(new ApiKeyCallback());
-    }
-
-    private class ApiKeyCallback implements Callback {
-        @Override public void onFailure(Call call, IOException e) {
-            e.printStackTrace();
-        }
-
-        @Override public void onResponse(Call call, Response response) throws IOException {
-            if(response.code() != 200) {
-                setResult(Activity.RESULT_CANCELED);
-                finish();
-            }
-            String bodyString = response.body().string();
-            Pattern keyPattern = Pattern.compile("<p>Key: ([0-9A-F]+)</p>");
-            Matcher matcher = keyPattern.matcher(bodyString);
-
-            Intent resultIntent = new Intent();
-            if(matcher.find()) {
-                String apiKey = matcher.group(1);
-                resultIntent.putExtra(IntentConsts.API_KEY, apiKey);
-                setResult(Activity.RESULT_OK, resultIntent);
-            } else {
-                setResult(Activity.RESULT_CANCELED);
-            }
-            finish();
-        }
-    }
-
-    private Cookie getCookie(String cookie) {
-        String name = cookie.split("=")[0];
-        String value = cookie.split("=")[1];
-        return new Cookie.Builder()
-                .domain("steamcommunity.com")
-                .path("/")
-                .name(name)
-                .value(value)
-                .build();
     }
 
 

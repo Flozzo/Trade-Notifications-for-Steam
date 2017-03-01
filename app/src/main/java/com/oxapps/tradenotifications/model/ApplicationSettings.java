@@ -32,7 +32,31 @@ public interface ApplicationSettings {
     long getNotificationRefreshDelay();
 
     /**
-     * Sets the Steam API key into app settings
+     * @return the user's Steam username
+     */
+    String getUsername();
+
+    /**
+     * @return whether the user's URL is a custom profile
+     */
+    boolean isProfileUrl();
+
+    /**
+     * Sets the Steam username in the app settings
+     *
+     * @param username the username to store
+     */
+    void setUsername(String username);
+
+    /**
+     * Sets whether the user's URL is a custom profile in settings
+     *
+     * @param isProfileUrl whether the user has a custom profile URL or not
+     */
+    void setProfileUrl(boolean isProfileUrl);
+
+    /**
+     * Sets the Steam API key in the app settings
      *
      * @param apiKey the Steam API Key to be used
      */
@@ -44,4 +68,6 @@ public interface ApplicationSettings {
      * @param refreshDelay the delay to be used
      */
     void setNotificationRefreshDelay(long refreshDelay);
+
+
 }

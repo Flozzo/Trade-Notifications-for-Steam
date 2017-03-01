@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
@@ -83,7 +82,6 @@ public class BackgroundTaskService extends GcmTaskService {
 
     @Override
     public int onRunTask(TaskParams taskParams) {
-        Log.d(TAG, "onRunTask: Task running");
         if(!connectionUtils.isInternetAvailable()) {
             stopSelf();
             return GcmNetworkManager.RESULT_FAILURE;

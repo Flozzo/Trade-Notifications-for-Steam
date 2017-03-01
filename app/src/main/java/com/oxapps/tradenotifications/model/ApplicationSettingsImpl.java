@@ -60,6 +60,51 @@ public class ApplicationSettingsImpl implements ApplicationSettings {
     }
 
     /**
+     * Retrieves the user's Steam username from application preferences
+     *
+     * @return the user's Steam username
+     */
+    @Override
+    public String getUsername() {
+        return mPrefs.getString(SharedPreferenceConsts.USERNAME, "");
+    }
+
+    /**
+     * Retrieves whether the user's URL is a custom profile from application preferences
+     *
+     * @return whether the user's URL is a custom profile
+     */
+    @Override
+    public boolean isProfileUrl() {
+        return mPrefs.getBoolean(SharedPreferenceConsts.PROFILE, true);
+    }
+
+    /**
+     * Sets the Steam username in the app settings
+     *
+     * @param username the username to store
+     */
+    @Override
+    public void setUsername(String username) {
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putString(SharedPreferenceConsts.USERNAME, username);
+        editor.apply();
+    }
+
+
+    /**
+     * Stores whether the user's URL is a custom profile in application settings
+     *
+     * @param isProfileUrl whether the user has a custom profile URL or not
+     */
+    @Override
+    public void setProfileUrl(boolean isProfileUrl) {
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putBoolean(SharedPreferenceConsts.USERNAME, isProfileUrl);
+        editor.apply();
+    }
+
+    /**
      * Stores the Steam API Key in application's preferences
      *
      * @param apiKey the Steam API Key to be used
