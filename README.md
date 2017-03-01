@@ -3,4 +3,4 @@ Android app for Steam trade offer notifications on new trade offers. Integrated 
 
 ## License
 
-This project is licensed under the Apache License, Version 2.0 - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the Apache License, Version 2.0 - see the [LICENSE.md](LICENSE.txt) file for details
