@@ -145,9 +145,8 @@ public class BackgroundTaskService extends GcmTaskService {
             exception.printStackTrace();
         }
 
-        if(newSinceLastCheckCount > 0) {
-            showNewTradeNotification(totalOfferCount, newOfferCount);
-        }
+        boolean vibrate = newSinceLastCheckCount > 0;
+        showNewTradeNotification(totalOfferCount, newOfferCount, vibrate);
     }
 
     private String getTradeOffers(String url) throws IOException {
@@ -166,7 +165,7 @@ public class BackgroundTaskService extends GcmTaskService {
         }
     }
 
-    private void showNewTradeNotification(int totalOfferCount, int newOfferCount) {
+    private void showNewTradeNotification(int totalOfferCount, int newOfferCount, boolean vibrate) {
         String titleText = String.valueOf(newOfferCount) + " new trade offer" + ((newOfferCount == 1) ? "" : "s");
         String contentText = "You now have " + String.valueOf(totalOfferCount) + " active trade offer" + ((totalOfferCount == 1) ? "" : "s");
 
@@ -182,9 +181,12 @@ public class BackgroundTaskService extends GcmTaskService {
                 .setContentTitle(titleText)
                 .setContentText(contentText)
                 .setAutoCancel(true)
-                .setVibrate(new long[]{300, 300, 300, 300, 300})
                 .setDeleteIntent(pendingDeleteIntent)
                 .setContentIntent(pendingContentIntent);
+
+        if(vibrate) {
+            notificationBuilder.setVibrate(new long[]{300, 300, 300, 300, 300});
+        }
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
