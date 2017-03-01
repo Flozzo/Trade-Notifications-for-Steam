@@ -33,6 +33,8 @@ import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.oxapps.tradenotifications.model.IntentConsts;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -178,7 +180,7 @@ public class ApiKeyActivity extends AppCompatActivity {
             Intent resultIntent = new Intent();
             if(matcher.find()) {
                 String apiKey = matcher.group(1);
-                resultIntent.putExtra(MainActivity.KEY_API_KEY, apiKey);
+                resultIntent.putExtra(IntentConsts.API_KEY, apiKey);
                 setResult(Activity.RESULT_OK, resultIntent);
             } else {
                 setResult(Activity.RESULT_CANCELED);

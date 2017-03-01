@@ -22,7 +22,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.oxapps.tradenotifications.MainActivity"
+    tools:context="com.oxapps.tradenotifications.main.MainActivity"
     android:orientation="vertical">
 
     <LinearLayout
@@ -57,7 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:onClick="getApiKey"
+            android:onClick="onGetApiKeyClicked"
             android:hint="@string/api_key_get"/>
 
         <TextView

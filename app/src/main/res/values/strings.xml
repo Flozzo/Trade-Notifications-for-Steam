@@ -7,7 +7,7 @@
     <string name="api_key_edit">Edit API Key</string>
 
     <string name="delay_header">Checking interval</string>
-    <string name="delay_button_title">Checking interval</string>
+    <string name="delay_button_title">Set checking interval</string>
     <string name="delay_button_text">10 minutes</string>
 
     <string name="donate_header">Support Development</string>
@@ -28,4 +28,10 @@
     <string name="no_internet">No internet connection available</string>
     <string name="api_key_error">Error retrieving API Key</string>
     <string name="loading_api_key">Retrieving API Key</string>
+
+    <string name="invalid_api_key">Invalid API Key</string>
+    <string name="invalid_api_key_message">Invalid API Key entered. If you exit now you will not get any notifications. Continue?</string>
+    <string name="api_key_changed">API Key changed, save changes?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

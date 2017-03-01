@@ -39,7 +39,7 @@ public class DelayDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         long delay = delayMinutes[which] * 60;
                         if(delaySetListener != null) {
-                            delaySetListener.onDelaySet(delays[which], delay);
+                            delaySetListener.onDelaySet(delay);
                         }
                     }
                 });
@@ -51,6 +51,6 @@ public class DelayDialogFragment extends DialogFragment {
     }
 
     public interface OnDelaySetListener {
-        void onDelaySet(String text, long delay);
+        void onDelaySet(long delay);
     }
 }
