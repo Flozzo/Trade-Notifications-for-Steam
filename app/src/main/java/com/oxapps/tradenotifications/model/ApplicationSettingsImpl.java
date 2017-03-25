@@ -66,7 +66,7 @@ public class ApplicationSettingsImpl implements ApplicationSettings {
      */
     @Override
     public String getUsername() {
-        return mPrefs.getString(SharedPreferenceConsts.USERNAME, "");
+        return mPrefs.getString(SharedPreferenceConsts.USERNAME, "me");
     }
 
     /**
@@ -76,7 +76,23 @@ public class ApplicationSettingsImpl implements ApplicationSettings {
      */
     @Override
     public boolean isProfileUrl() {
-        return mPrefs.getBoolean(SharedPreferenceConsts.PROFILE, true);
+        return mPrefs.getBoolean(SharedPreferenceConsts.PROFILE, false);
+    }
+
+    /**
+     * @return the last time the user's trades were checked in Unix time format
+     */
+    @Override
+    public long getLastCheckTime() {
+        return mPrefs.getLong(SharedPreferenceConsts.LAST_CHECK_KEY, 0L);
+    }
+
+    /**
+     * @return the last time a trade notification was removed in Unix time format
+     */
+    @Override
+    public long getLastDeleteTime() {
+        return mPrefs.getLong(SharedPreferenceConsts.LAST_DELETE_KEY, 0L);
     }
 
     /**
@@ -125,6 +141,30 @@ public class ApplicationSettingsImpl implements ApplicationSettings {
     public void setNotificationRefreshDelay(long notificationRefreshDelay) {
         SharedPreferences.Editor editor = mPrefs.edit();
         editor.putLong(SharedPreferenceConsts.NOTIF_REFRESH_DELAY, notificationRefreshDelay);
+        editor.apply();
+    }
+
+    /**
+     * Stores the last time the application checked the user's trade offers in preferences
+     *
+     * @param lastCheckTime the time to set the setting to in Unix time format
+     */
+    @Override
+    public void setLastCheckTime(long lastCheckTime) {
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putLong(SharedPreferenceConsts.LAST_CHECK_KEY, lastCheckTime);
+        editor.apply();
+    }
+
+    /**
+     * Stores the last time a trade notification was removed in preferences
+     *
+     * @param lastDeleteTime the time to set the setting to in Unix time format
+     */
+    @Override
+    public void setLastDeleteTime(long lastDeleteTime) {
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putLong(SharedPreferenceConsts.LAST_DELETE_KEY, lastDeleteTime);
         editor.apply();
     }
 

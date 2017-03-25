@@ -20,8 +20,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
@@ -48,8 +46,6 @@ public class BackgroundTaskService extends GcmTaskService {
 
     private static final String TAG = "BackgroundTaskService";
 
-    public static final String LAST_DELETE_KEY = "lastDelete";
-    public static final String LAST_CHECK_KEY = "lastChecked";
     private static final String TIME_CREATED_KEY = "time_created";
     private static final String OFFER_STATE_KEY = "trade_offer_state";
     private static final int OFFER_STATE_ACTIVE = 2;
@@ -87,15 +83,12 @@ public class BackgroundTaskService extends GcmTaskService {
             return GcmNetworkManager.RESULT_FAILURE;
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        long lastDeleteTime = prefs.getLong(LAST_DELETE_KEY, 0);
-        long lastCheckTime = prefs.getLong(LAST_CHECK_KEY, 0);
+        long lastDeleteTime = applicationSettings.getLastDeleteTime();
+        long lastCheckTime = applicationSettings.getLastCheckTime();
         long currentTime = System.currentTimeMillis() / 1000;
 
         String apiKey = applicationSettings.getApiKey();
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong(LAST_CHECK_KEY, currentTime);
-        editor.apply();
+        applicationSettings.setLastCheckTime(currentTime);
 
         getReceivedOffers(apiKey, lastCheckTime, lastDeleteTime);
 

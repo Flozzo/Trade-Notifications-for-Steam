@@ -19,28 +19,29 @@ package com.oxapps.tradenotifications;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 
+import com.oxapps.tradenotifications.model.ApplicationSettings;
+import com.oxapps.tradenotifications.model.ApplicationSettingsImpl;
 import com.oxapps.tradenotifications.model.IntentConsts;
-import com.oxapps.tradenotifications.model.SharedPreferenceConsts;
 
 public class NotificationDeleteReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        ApplicationSettings applicationSettings = new ApplicationSettingsImpl(context);
+
         long newRequestTime = System.currentTimeMillis() / 1000;
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        long lastCheckTime = prefs.getLong(BackgroundTaskService.LAST_CHECK_KEY, newRequestTime);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong(BackgroundTaskService.LAST_DELETE_KEY, lastCheckTime);
-        editor.apply();
+        long lastCheckTime = applicationSettings.getLastCheckTime();
+        if(lastCheckTime == 0) {
+            lastCheckTime = newRequestTime;
+        }
+        applicationSettings.setLastDeleteTime(lastCheckTime);
 
         if(intent.getBooleanExtra(IntentConsts.NOTIFICATION_CLICKED, false)) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW);
-            String username = prefs.getString(SharedPreferenceConsts.USERNAME, "me");
-            boolean isProfile = prefs.getBoolean(SharedPreferenceConsts.PROFILE, false);
+            String username = applicationSettings.getUsername();
+            boolean isProfile = applicationSettings.isProfileUrl();
             String identifier = isProfile ? "profile/" : "id/";
             String url = "https://steamcommunity.com/" + identifier + username + "/tradeoffers";
             browserIntent.setData(Uri.parse(url));

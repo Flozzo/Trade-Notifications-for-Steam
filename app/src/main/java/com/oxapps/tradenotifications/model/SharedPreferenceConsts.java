@@ -45,4 +45,14 @@ public final class SharedPreferenceConsts {
      * Preference key indicating whether it is a custom profile url or not
      */
     public static final String PROFILE = "isProfile";
+
+    /**
+     * Preference key indicating the last time a notification was removed
+     */
+    public static final String LAST_DELETE_KEY = "lastDelete";
+
+    /**
+     * Preference key indicating the last time the application checked for new trade offers
+     */
+    public static final String LAST_CHECK_KEY = "lastChecked";
 }

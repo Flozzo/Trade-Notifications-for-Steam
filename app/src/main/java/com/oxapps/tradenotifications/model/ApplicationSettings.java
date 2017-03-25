@@ -42,6 +42,16 @@ public interface ApplicationSettings {
     boolean isProfileUrl();
 
     /**
+     * @return the last time the user's trades were checked in Unix time format
+     */
+    long getLastCheckTime();
+
+    /**
+     * @return the last time a trade notification was removed in Unix time format
+     */
+    long getLastDeleteTime();
+
+    /**
      * Sets the Steam username in the app settings
      *
      * @param username the username to store
@@ -68,6 +78,20 @@ public interface ApplicationSettings {
      * @param refreshDelay the delay to be used
      */
     void setNotificationRefreshDelay(long refreshDelay);
+
+    /**
+     * Sets the last time the application checked the user's trade offers
+     *
+     * @param lastCheckTime the time to set the setting to in Unix time format
+     */
+    void setLastCheckTime(long lastCheckTime);
+
+    /**
+     * Sets the last time a trade notification was removed
+     *
+     * @param lastDeleteTime the time to set the setting to in Unix time format
+     */
+    void setLastDeleteTime(long lastDeleteTime);
 
 
 }
