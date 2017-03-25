@@ -32,6 +32,7 @@ import com.oxapps.tradenotifications.model.ApplicationSettings;
 import com.oxapps.tradenotifications.model.ApplicationSettingsImpl;
 import com.oxapps.tradenotifications.model.BackgroundTaskScheduler;
 import com.oxapps.tradenotifications.model.ConnectionUtils;
+import com.oxapps.tradenotifications.model.IntentConsts;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,7 +52,6 @@ public class BackgroundTaskService extends GcmTaskService {
     public static final String LAST_CHECK_KEY = "lastChecked";
     private static final String TIME_CREATED_KEY = "time_created";
     private static final String OFFER_STATE_KEY = "trade_offer_state";
-    public static final String NOTIFICATION_CLICKED = "clicked";
     private static final int OFFER_STATE_ACTIVE = 2;
 
     private String ORIGINAL_URL = "https://api.steampowered.com/IEconService/GetTradeOffers/v1/?key=";
@@ -178,7 +178,7 @@ public class BackgroundTaskService extends GcmTaskService {
         PendingIntent pendingDeleteIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 5, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent clickIntent = new Intent(this, NotificationDeleteReceiver.class);
-        clickIntent.putExtra(NOTIFICATION_CLICKED, "clicked");
+        clickIntent.putExtra(IntentConsts.NOTIFICATION_CLICKED, true);
         PendingIntent pendingContentIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 6, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
@@ -208,7 +208,7 @@ public class BackgroundTaskService extends GcmTaskService {
 
     private void showErrorNotification() {
         Intent clickIntent = new Intent(this, MainActivity.class);
-        clickIntent.putExtra(NOTIFICATION_CLICKED, "clicked");
+        clickIntent.putExtra(IntentConsts.NOTIFICATION_CLICKED, true);
         PendingIntent pendingContentIntent = PendingIntent.getActivity(this.getApplicationContext(), 6, clickIntent, 0);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)

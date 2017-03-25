@@ -23,6 +23,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
+import com.oxapps.tradenotifications.model.IntentConsts;
 import com.oxapps.tradenotifications.model.SharedPreferenceConsts;
 
 public class NotificationDeleteReceiver extends BroadcastReceiver {
@@ -36,7 +37,7 @@ public class NotificationDeleteReceiver extends BroadcastReceiver {
         editor.putLong(BackgroundTaskService.LAST_DELETE_KEY, lastCheckTime);
         editor.apply();
 
-        if(intent.hasExtra(BackgroundTaskService.NOTIFICATION_CLICKED)) {
+        if(intent.getBooleanExtra(IntentConsts.NOTIFICATION_CLICKED, false)) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW);
             String username = prefs.getString(SharedPreferenceConsts.USERNAME, "me");
             boolean isProfile = prefs.getBoolean(SharedPreferenceConsts.PROFILE, false);

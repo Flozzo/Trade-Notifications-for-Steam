@@ -31,4 +31,9 @@ public final class IntentConsts {
      * Request code for retrieving an API Key
      */
     public static final int API_KEY_REQUEST = 11;
+
+    /**
+     * Notification Intent extra to indicate a notification click
+     */
+    public static final String NOTIFICATION_CLICKED = "clicked";
 }
