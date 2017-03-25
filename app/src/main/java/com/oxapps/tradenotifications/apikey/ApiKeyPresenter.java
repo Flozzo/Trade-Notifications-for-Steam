@@ -16,7 +16,7 @@
 
 package com.oxapps.tradenotifications.apikey;
 
-import com.oxapps.tradenotifications.model.ApiKeyAccess;
+import com.oxapps.tradenotifications.steamapi.ApiKeyAccess;
 import com.oxapps.tradenotifications.model.ApplicationSettings;
 
 import java.io.IOException;

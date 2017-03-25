@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.oxapps.tradenotifications.model;
+package com.oxapps.tradenotifications.steamapi;
 
 import com.oxapps.tradenotifications.apikey.UrlConsts;
 
