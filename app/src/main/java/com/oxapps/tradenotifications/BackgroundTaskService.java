@@ -31,12 +31,15 @@ import com.oxapps.tradenotifications.model.ApplicationSettingsImpl;
 import com.oxapps.tradenotifications.model.BackgroundTaskScheduler;
 import com.oxapps.tradenotifications.model.ConnectionUtils;
 import com.oxapps.tradenotifications.model.IntentConsts;
+import com.oxapps.tradenotifications.steamapi.TradeOffer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -48,7 +51,6 @@ public class BackgroundTaskService extends GcmTaskService {
 
     private static final String TIME_CREATED_KEY = "time_created";
     private static final String OFFER_STATE_KEY = "trade_offer_state";
-    private static final int OFFER_STATE_ACTIVE = 2;
 
     private String ORIGINAL_URL = "https://api.steampowered.com/IEconService/GetTradeOffers/v1/?key=";
     private String URL_OPTIONS_NEW_TRADES = "&format=json&get_sent_offers=0&get_received_offers=1&get_descriptions=0&active_only=1&historical_only=0";
@@ -112,30 +114,20 @@ public class BackgroundTaskService extends GcmTaskService {
         int totalOfferCount = 0;
 
         try {
-            String json = getTradeOffers(url);
-            if(json.equals("")) {
-                return;
-            }
-            JSONObject response = new JSONObject(json).getJSONObject("response");
-            if(response.length() == 0 ) {
+            List<TradeOffer> tradeOffers = getTradeOffers(url);
+            if (tradeOffers.isEmpty()) {
                 removeNotification();
                 return;
             }
-            JSONArray tradeOffers = response.getJSONArray("trade_offers_received");
-            totalOfferCount = tradeOffers.length();
-            for (int i = 0; i < totalOfferCount; i++) {
-                JSONObject tradeOffer = tradeOffers.getJSONObject(i);
-                long timeCreated = tradeOffer.getLong(TIME_CREATED_KEY);
-                int state = tradeOffer.getInt(OFFER_STATE_KEY);
-                if(timeCreated > lastDeleteTime) {
-                    if(state == OFFER_STATE_ACTIVE) {
+            for (TradeOffer tradeOffer : tradeOffers) {
+                if(tradeOffer.getTimeCreated() > lastDeleteTime) {
+                    if(tradeOffer.getState() == TradeOffer.STATE_ACTIVE) {
                         newOfferCount++;
-                        if (timeCreated > lastCheckTime) {
+                        if (tradeOffer.getTimeCreated() > lastCheckTime) {
                             newSinceLastCheckCount++;
                         }
                     }
                 } else {
-                    //They are in chronological order so if the first was too early the rest will be too.
                     break;
                 }
             }
@@ -147,20 +139,32 @@ public class BackgroundTaskService extends GcmTaskService {
         showNewTradeNotification(totalOfferCount, newOfferCount, vibrate);
     }
 
-    private String getTradeOffers(String url) throws IOException {
+    private List<TradeOffer> getTradeOffers(String url) throws IOException, JSONException {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
 
         Response response = client.newCall(request).execute();
+        List<TradeOffer> tradeOfferList = new ArrayList<>();
         if(response.isSuccessful()) {
-            return response.body().string();
+            JSONObject jsonResponse = new JSONObject(response.body().string()).getJSONObject("response");
+            if(jsonResponse.length() == 0 ) {
+                return new ArrayList<>();
+            }
+            JSONArray tradeOffers = jsonResponse.getJSONArray("trade_offers_received");
+            for (int i = 0; i < tradeOffers.length(); i++) {
+                JSONObject tradeOfferJson = tradeOffers.getJSONObject(i);
+                long timeCreated = tradeOfferJson.getLong(TIME_CREATED_KEY);
+                int state = tradeOfferJson.getInt(OFFER_STATE_KEY);
+                TradeOffer tradeOffer = new TradeOffer(timeCreated, state);
+                tradeOfferList.add(tradeOffer);
+            }
         } else {
             if (response.code() == 403) {
                 handleBadApiKeyError();
             }
-            return "";
         }
+        return tradeOfferList;
     }
 
     private void showNewTradeNotification(int totalOfferCount, int newOfferCount, boolean vibrate) {
