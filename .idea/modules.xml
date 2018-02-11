@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TradeNotifications.iml" filepath="$PROJECT_DIR$/TradeNotifications.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Trade-Notifications.iml" filepath="$PROJECT_DIR$/Trade-Notifications.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
